@@ -6,11 +6,12 @@ WORKDIR /root
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-    pkg-config libffi-dev libssl-dev dfu-util libusb-1.0-0 \
-	libglib2.0-dev libpixman-1-dev libgcrypt20-dev
+	apt-get install -y --no-install-recommends \
+	pkg-config libffi-dev libssl-dev dfu-util libusb-1.0-0 \
+	libglib2.0-dev libpixman-1-dev libgcrypt20-dev jq netcat telnet
 
-RUN git clone --quiet https://github.com/espressif/qemu.git \
+RUN git clone --depth=1 --branch epic --quiet https://github.com/epiclabs-uc/qemu-esp32.git qemu\
+	&& echo "clone complete" \
 	&& cd qemu \
 	&& mkdir -p build \
 	&& cd build \
@@ -19,14 +20,14 @@ RUN git clone --quiet https://github.com/espressif/qemu.git \
 	&& make install \
 	&& cd ../.. \ 
 	&& rm -rf qemu
-	
+
 # a list of optional but useful ports this container might listen on.
 # (however, it may be easier to just run docker with "--network host" to expose all ports)
 #  i.e. in case your qemu running esp32 is running a web server / char device fwd'ing / etc
 
 # for debugging QEMU's GDB server from outside the container
 EXPOSE 1234/tcp
-
+EXPOSE 4444/tcp
 # ---------
 # because you might want to use these, and this is a dev container so, useful to have a few presets
 # ---------
